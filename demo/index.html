@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Pagination Demo</title>
+
+    <style>
+      .pagination-btn{
+        display: inline-block;
+        padding: 0.25em 0.5em;
+        border: 1px solid transparent;
+        margin: 3px;
+        font: 14px Arial;
+        background: #eee;
+        cursor: pointer;
+      }
+      .is-active{
+        border-color: #555;
+        background: none;
+      }
+      [data-action="prev"]:before,
+      [data-action="next"]:before{
+        display: inline-block;
+        vertical-align: middle;
+      }
+      [data-action="prev"]:before{
+        content: '<';
+      }
+      [data-action="next"]:before{
+        content: '>';
+      }
+    </style>
+  </head>
+  <body>
+
+    <h1>Pagination demo 10</h1>
+    <div id="pagination"></div>
+
+    <script src="../build/demo.js"></script>
+
+  </body>
+</html>
