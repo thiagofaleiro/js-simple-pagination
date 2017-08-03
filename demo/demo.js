@@ -1,13 +1,12 @@
 'use strict'
 
-import jQuery from 'jquery';
 import Pagination from '../dist/pagination_class';
 
-
-(function demo($){
-
-  const pagination = new Pagination( $('#pagination') );
+(function demo(){
+  const paginationEl = document.getElementById('pagination');
+  const pagination = new Pagination( paginationEl );
   pagination.setButtons(12);
-  console.log('Pagination 2', $('#pagination'), pagination);
 
-}(jQuery));
+  console.dir('Pagination element >>', paginationEl);
+  console.log('Pagination class >>', pagination);
+}());

@@ -32,7 +32,6 @@
     "gulp-uglify": "^1.0.1",
     "gulp-util": "^3.0.1",
     "gulp-watch": "^4.3.11",
-    "jquery": "^3.2.1",
     "jshint-stylish": "^1.0.0",
     "mversion": "^1.6.0",
     "vinyl-buffer": "^1.0.0",

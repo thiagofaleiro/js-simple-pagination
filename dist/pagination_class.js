@@ -1,9 +1,9 @@
 export default class Pagination{
-  constructor($element, options){
-    this.$el = $element;
-    this.$elButtons = null;
+  constructor(element, options){
+    this.el = element;
+    this.elButtons = null;
     this._setOptions(options);
-    this._setClickHandler(this.$el);
+    this._setClickHandler(this.el);
     this.disablePageClick = false;
   }
 
@@ -20,16 +20,20 @@ export default class Pagination{
     this.options = Object.assign({}, defaultOptions, customOptions);
   }
 
-  _setClickHandler($el){
-    $el.on('click', '.' + this.options.btnClass, (e) => this._clickHandler(e));
+  _setClickHandler(el){
+    el.addEventListener('click', (e) => {
+      if ( e.target.classList.contains(this.options.btnClass) ){
+        this._clickHandler(e);
+      }
+    });
   }
 
   _setBaseElements(){
     const arrowPrev = (this.options.showArrows) ? this._getBtnHTML('prev') : '';
     const arrowNext = (this.options.showArrows) ? this._getBtnHTML('next') : '';
     const btnWrapper = `<span class="${this.options.btnListClass}"></span>`;
-    this.$el.html(`${arrowPrev} ${btnWrapper} ${arrowNext}`);
-    this.$elButtons = this.$el.find(`.${this.options.btnListClass}`);
+    this.el.innerHTML = `${arrowPrev} ${btnWrapper} ${arrowNext}`;
+    this.elButtons = this.el.querySelector(`.${this.options.btnListClass}`);
   }
 
   _getBtnHTML(action, text){
@@ -62,7 +66,7 @@ export default class Pagination{
     if( this.pageGroups.length > 1 ){
       numbersHTML = this._placeMoreButton(numbersHTML, groupIndex);
     }
-    this.$elButtons.html(numbersHTML);
+    this.elButtons.innerHTML = numbersHTML;
     // Setting buttons group reference
     this._currentButtonGroup = groupIndex;
     this._activePageButton(this._currentActiveButton);
@@ -90,7 +94,7 @@ export default class Pagination{
 
   _clickHandler(e){
     e.preventDefault();
-    const { action } = e.currentTarget.dataset;
+    const { action } = e.target.dataset;
     switch (action) {
       case 'less' :
         return this._lessHandler(e);
@@ -107,26 +111,23 @@ export default class Pagination{
 
   _lessHandler(e){
     this._setButtonsGroup(this._currentButtonGroup - 1);
-    console.log('Click!', e);
   }
 
   _moreHandler(e){
     this._setButtonsGroup(this._currentButtonGroup + 1);
-    console.log('Click!', e);
   }
 
   _pageHandler(e){
     e.preventDefault();
-    if( !e.currentTarget.classList.contains(this.options.btnActiveClass) &&
+    if( !e.target.classList.contains(this.options.btnActiveClass) &&
         !this.disablePageClick ){
-          const pageNumber = parseInt(e.currentTarget.dataset.text);
+          const pageNumber = parseInt(e.target.dataset.text);
           this._triggerNextPage(pageNumber);
         }
   }
 
   _prevHandler(){
     if( this._currentActiveButton > 1 && !this.disablePageClick ){
-      console.log("Is first of group", this._isfirstGroupItem());
       let nextPage, nextGroupNum;
       // Check if the current page is the last of its group
       if (this._isfirstGroupItem()){
@@ -143,7 +144,6 @@ export default class Pagination{
 
   _nextHandler(){
     if( this._currentActiveButton !== this._totalPages && !this.disablePageClick ){
-      console.log("Is last of group", this._isLastGroupItem());
       let nextPage, nextGroupNum;
       // Check if the current page is the last of its group
       if (this._isLastGroupItem()){
@@ -176,12 +176,12 @@ export default class Pagination{
   }
 
   _isfirstGroupItem(){
-    let currGroup = this.pageGroups[this._currentButtonGroup];
+    const currGroup = this.pageGroups[this._currentButtonGroup];
     return currGroup[0] === this._currentActiveButton;
   }
 
   _isLastGroupItem(){
-    let currGroup = this.pageGroups[this._currentButtonGroup];
+    const currGroup = this.pageGroups[this._currentButtonGroup];
     return currGroup[currGroup.length - 1] === this._currentActiveButton;
   }
 
@@ -199,18 +199,18 @@ export default class Pagination{
   }
 
   _activePageButton(btnNumber){
-    this.$elButtons
-      .find('.' + this.options.btnClass)
-      .filter(`[data-text=${btnNumber}]`)
-      .addClass(this.options.btnActiveClass)
-      .siblings()
-      .removeClass(this.options.btnActiveClass);
+    const activeButton = this.elButtons.querySelector(`.${this.options.btnActiveClass}`);
+    const newActiveButton = this.elButtons.querySelector(`[data-text='${btnNumber}']`);
+    // Remove active class from the current active button
+    if (activeButton) activeButton.classList.remove(this.options.btnActiveClass);
+    // Highlight the new active button
+    if (newActiveButton) newActiveButton.classList.add(this.options.btnActiveClass);
     // Setting reference of current active page button
     this._currentActiveButton = btnNumber;
   }
 
   _showPagination(show = true){
-    this.$el[show ? 'show' : 'hide']();
+    this.el.style.display = show ? 'block' : 'none';
   }
 
   setButtons(totalPages, activeFirst = true){

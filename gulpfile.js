@@ -93,7 +93,9 @@ function compile(watch) {
 
   if (watch) {
     bundler.on('update', function() {
-      console.log('-> bundling...');
+      var time = new Date();
+      time = time.toTimeString().split(' ')[0];
+      console.log('['+time+'] '+'-> bundling...');
       rebundle();
     });
   }
