@@ -1,4 +1,6 @@
 var fs = require('fs');
+var os = require('os');
+
 var connect = require('gulp-connect');
 var gulp = require('gulp');
 // var karma = require('karma').server;
@@ -22,6 +24,9 @@ var watchify = require('watchify');
 var babel = require('babelify');
 var glob = require('glob');
 
+var mocha = require('gulp-mocha');
+var karma = require('karma').Server;
+
 var config = {
   pkg : JSON.parse(fs.readFileSync('./package.json')),
   banner:
@@ -30,7 +35,14 @@ var config = {
       ' * <%= pkg.homepage %>\n' +
       ' * Version: <%= pkg.version %> - <%= timestamp %>\n' +
       ' * License: <%= pkg.license %>\n' +
-      ' */\n\n\n'
+      ' */\n\n\n',
+
+  browserPort: 8080,
+
+  demo: {
+    dir: './demo',
+    script: './demo/demo.js'
+  }
 };
 
 
@@ -47,47 +59,52 @@ function _handleError(err) {
 
 gulp.task('connect', function() {
   connect.server({
-    root: [__dirname],
+    root: 'demo',
+    port: config.browserPort,
     livereload: true
   });
 });
 
-// gulp.task('clean-dist', function(cb) {
-//   del([DIST], cb);
-// });
-//
-function clean(cb) {
+gulp.task('clean', function(cb) {
   del('./build', cb);
-};
+});
 
-function open(){
-  gulp.src('./demo/index.html')
-      .pipe(open('', {url: 'http://localhost:8080/demo/'}));
-};
+gulp.task('open', function(){
+  gulp.src(__filename)
+    .pipe(open({
+      uri: 'http://localhost:' + config.browserPort
+    }));
+});
 
-function reload() {
+gulp.task('reload', function() {
   gulp.src(['./demo/*.html'])
       .pipe(connect.reload());
-};
+});
 
-function watchHtml() {
+gulp.task('watch', function(){
   gulp.watch('./demo/*.html', ['reload']);
-};
+  return compile(true);
+});
 
+gulp.task('build', ['clean'], compile);
 function compile(watch) {
   var bundler = watchify(browserify([
     './dist/pagination_class.js',
-    './demo/demo.js'
-  ], { debug: true }).transform('babelify', { presets: ['es2015'] }));
+    config.demo.script
+  ], { debug: true })
+    .transform('babelify', { presets: ['es2015'] }));
 
   function rebundle() {
     bundler.bundle()
       .on('error', _handleError)
-      .pipe(source('demo.js'))
+      .pipe(source(config.demo.script))
       .pipe(buffer())
+      .pipe(rename(function (path) {
+        path.basename += ".min";
+      }))
       .pipe(sourcemaps.init({ loadMaps: true }))
       .pipe(sourcemaps.write('./'))
-      .pipe(gulp.dest('./build'))
+      .pipe(gulp.dest('./'))
       .pipe(connect.reload());
   }
 
@@ -103,15 +120,20 @@ function compile(watch) {
   rebundle();
 }
 
-function watch() {
-  return compile(true);
-};
+// Tests
+gulp.task('test', function(done){
+  karma.start({
+    configFile: __dirname + '/karma.conf.js'
+  }, function(){ done() });
+});
 
-gulp.task('open', open);
-gulp.task('clean', clean);
-gulp.task('reload', reload);
-gulp.task('watch-html', watchHtml);
+gulp.task('test:serve', function(done){
+  karma.start({
+    configFile: __dirname + '/karma.conf.js',
+    singleRun: false,
+    autoWatch: true
+  }, function(){ done() });
+});
 
-gulp.task('build', ['clean'], compile);
-gulp.task('watch', ['watch-html'], watch);
+// Default: multiple tasks
 gulp.task('default', ['watch', 'connect', 'open']);
