@@ -1,15 +1,22 @@
 {
-  "name": "simple-js-pagination",
+  "name": "js-simple-pagination",
   "version": "0.1.0",
-  "description": "Pagination class with no dependencies.",
-  "repository": "git@bitbucket.webradar.com:7999/qns/map-theme-directives.git",
+  "description": "Get a pagination widget with this vanilla js ES6 class.",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/thiagofaleiro/js-simple-pagination"
+  },
   "main": "dist/pagination_class.js",
   "scripts": {
-    "test": "./node_modules/.bin/gulp test"
+    "start": "./node_modules/.bin/gulp",
+    "test": "./node_modules/.bin/gulp test",
+    "test:serve": "./node_modules/.bin/gulp test:serve"
   },
   "keywords": [
     "javascript",
-    "pagination"
+    "pagination",
+    "vanilla js",
+    "es6"
   ],
   "author": "Thiago Faleiro",
   "license": "MIT",
